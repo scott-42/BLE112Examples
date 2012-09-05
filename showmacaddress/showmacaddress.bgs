@@ -5,13 +5,17 @@ dim t(12)
 dim addr(6)
 
 event system_boot(major,minor,patch,build,ll_version,protocol,hw)
-	# set the port pins for the display to output mode
+	# set the display to command mode
 	call hardware_io_port_write(1,$7,$1)
 	call hardware_io_port_config_direction(1,$7)
-
 	# Initialize the display
 	call hardware_spi_transfer(0,11,"\x30\x30\x30\x39\x14\x56\x6d\x70\x0c\x06\x01")
+	# Change display cursor pos
+	call hardware_spi_transfer(0,1,"\x80")
+	# set the display to data mode
 	call hardware_io_port_write(1,$7,$3)
+	#Write title to display
+	call hardware_spi_transfer(0,16,"  MAC Address   ")
 
 	# Get local BT address and display it on the LCD
 	call system_address_get()(addr(0:6))
@@ -30,6 +34,12 @@ event system_boot(major,minor,patch,build,ll_version,protocol,hw)
 	t(10:1) = (addr(0:1)/$10)+ 48 + ((addr(0:1)/$10)/10*7) 
 	t(11:1) = (addr(0:1)&$f) + 48 + ((addr(0:1)&$f )/10*7)
 	
+	#set the display to command mode
+	call hardware_io_port_write(1,$7,$1)
+	# Change display cursor pos
+	call hardware_spi_transfer(0,1,"\xc0")
+	#set the display to data mode
+	call hardware_io_port_write(1,$7,$3)
 	# write out the string in t to the display
 	call hardware_spi_transfer(0,12,t(0:12))
 end
