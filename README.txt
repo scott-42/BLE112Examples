@@ -1,0 +1,1 @@
+These are some example of using a Bluegiga Evaluation Board for the BLE112.
