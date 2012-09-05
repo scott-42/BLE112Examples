@@ -15,7 +15,7 @@ event system_boot(major,minor,patch,build,ll_version,protocol,hw)
 	call hardware_spi_transfer(0,1,"\x80")
 	#set the display to data mode
 	call hardware_io_port_write(1,$7,$3)
-	#Write temperature to display
+	#Write title to display
 	call hardware_spi_transfer(0,16,"  Text Service  ")
 end
 
