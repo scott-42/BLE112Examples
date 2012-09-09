@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+
+    <service uuid="1800">
+      <description>Generic Access Profile</description>
+
+      <characteristic uuid="2a00">
+        <properties read="true" const="true" />
+        <value>Blinky Light Demo</value>
+      </characteristic>
+
+      <characteristic uuid="2a01">
+        <properties read="true" const="true" />
+        <value type="hex">4142</value>
+      </characteristic>
+    </service>
+
+    <service type="primary" uuid="9000" id="manufacturer">
+        <characteristic uuid="9100">
+            <properties read="true" const="true" />
+            <value type="hex">000780c0ffeef00d</value>
+        </characteristic>
+        <characteristic uuid="9101">
+            <properties read="true" const="true" />
+            <value>modelnumber</value>
+        </characteristic>
+        <characteristic uuid="9106">
+            <properties read="true" const="true" />
+            <value>Bluegiga</value>
+        </characteristic>
+    </service>
+
+</configuration>
