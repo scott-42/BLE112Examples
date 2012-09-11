@@ -1,4 +1,5 @@
 dim tmp(16)
+dim x
 
 event system_boot(major,minor,patch,build,ll_version,protocol,hw)	
 	#Set device to advertisement mode and allow undirected connections
@@ -25,26 +26,15 @@ event connection_disconnected(handle,result)
 end
 
 event attributes_value(connection, reason, handle, offset, value_len, value)
-	#clear out tmp by filling it with all spaces
-	tmp(0:1) = $20
-	tmp(1:1) = $20
-	tmp(2:1) = $20
-	tmp(3:1) = $20
-	tmp(4:1) = $20
-	tmp(5:1) = $20
-	tmp(6:1) = $20
-	tmp(7:1) = $20
-	tmp(8:1) = $20
-	tmp(9:1) = $20
-	tmp(10:1) = $20
-	tmp(11:1) = $20
-	tmp(12:1) = $20
-	tmp(13:1) = $20
-	tmp(14:1) = $20
-	tmp(15:1) = $20
-	
-	# copy the incoming value to tmp
-	memcpy(tmp(0), value(offset), value_len)
+	x = 0
+	while x < 16
+		if value_len > x
+			tmp(x:1) = value(offset+x:1)
+		else
+			tmp(x:1) = $20 #space character
+		end if
+		x = x + 1
+	end while
 
 	#set the display to command mode
 	call hardware_io_port_write(1,$7,$1)
