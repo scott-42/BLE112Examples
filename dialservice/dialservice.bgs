@@ -1,0 +1,65 @@
+dim tmp(16)
+dim a
+dim b
+dim c
+
+event system_boot(major,minor,patch,build,ll_version,protocol,hw)	
+	#Set device to advertisement mode and allow undirected connections
+	call gap_set_mode(gap_general_discoverable,gap_undirected_connectable)
+	#Allow pairing
+	call sm_set_bondable_mode(1)
+
+	#set the display to command mode
+	call hardware_io_port_write(1,$7,$1)
+	call hardware_io_port_config_direction(1,$7)
+	#initialize the display
+	call hardware_spi_transfer(0,11,"\x30\x30\x30\x39\x14\x56\x6d\x70\x0c\x06\x01")
+	# Change display cursor pos
+	call hardware_spi_transfer(0,1,"\x80")
+	#set the display to data mode
+	call hardware_io_port_write(1,$7,$3)
+	#Write title to display
+	call hardware_spi_transfer(0,16,"  Dial Service  ")
+	
+	#set timer to periodically create an interrupt with interval of 1s
+	call hardware_set_soft_timer(32768,0,0)
+end
+
+event connection_disconnected(handle,result)
+	#in case if disconnect, return to advertisement mode
+    call gap_set_mode(gap_general_discoverable,gap_undirected_connectable)
+end
+
+#timer expired
+event hardware_soft_timer(handle)
+	#Request for ADC reading
+	call hardware_adc_read($6,3,2)
+end
+
+#ADC measurement ready
+event hardware_adc_result(input,value)
+
+	c = value & $FFF0
+	a = c/$100
+	b = c&$ff
+	
+	tmp(0:1)=a
+	tmp(1:1)=b
+	
+	#write the temperature information to the GATT database
+	call attributes_write(xgatt_dial_value,0,2,tmp(0:2))
+	
+	tmp(0:1) = (a/$10) + 48 + ((a/$10)/10*7)
+	tmp(1:1) = (a&$f) + 48 + ((a&$f )/10*7) 
+	tmp(2:1) = (b/$10) + 48 + ((b/$10)/10*7) 
+	tmp(3:1) = (b&$f) + 48 + ((b&$f )/10*7) 
+
+	#set the display to command mode
+	call hardware_io_port_write(1,$7,$1)
+	# Change display cursor pos
+	call hardware_spi_transfer(0,1,"\xc6")
+	#set the display to data mode
+	call hardware_io_port_write(1,$7,$3)
+	#Write temperature to display
+	call hardware_spi_transfer(0,4,tmp(0:4))
+end
