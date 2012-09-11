@@ -1,0 +1,3 @@
+xgatt_switch_state 15
+xgatt_text_string 19
+xgatt_temperature_celsius 24
